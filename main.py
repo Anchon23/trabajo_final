@@ -132,3 +132,9 @@ corr_df = df2.corr()
 
 # filtrar dataset por numero de hermanos mayor a 6 y nivel de estudios de los padres bachelor's degree
 print(datos.loc[(datos['numeros_hermanos'] > 6) & (datos['educacion_padres'] == "bachelor's degree"),["numeros_hermanos","educacion_padres"]])
+# filtrar dataset por genero mujer y puntuacion total mayor a 77
+print(datos.loc[(datos['genero'] == "female") & (datos['puntuacion_mates'] > 77),["genero","puntuacion_mates"]])
+# mostrar por pantalla los datos del alumno con Unnamed: 0 igual a 13478
+print(datos.loc[13478])
+# filtrar dataset por grupo etnico igual a Group A y puntuacion en lectura ordenada de menor a mayor
+print(datos.loc[datos["Grupo_etnico_estudiante"] == "Group A"]["puntuacion_lectura"].sort_values())
