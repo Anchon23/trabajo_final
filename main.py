@@ -104,9 +104,9 @@ plt.pie([group_a, group_b, group_c, group_d, group_e], labels = ['group_A','grou
 plt.title('Gráfico circular de grupos étnicos')
 plt.show()
 
-# grafico matriz de correlacion sin usar la libreria seaborn
+# grafico matriz de correlacion de las variables cuantitativas sin usar la libreria seaborn
 matriz_correlacion = datos.corr()
-
+ 
 plt.matshow(matriz_correlacion, cmap='coolwarm')
 for i in range(matriz_correlacion.shape[0]):
     for j in range(matriz_correlacion.shape[1]):
@@ -115,7 +115,7 @@ plt.xticks(range(len(matriz_correlacion.columns)), matriz_correlacion.columns, r
 plt.yticks(range(len(matriz_correlacion.columns)), matriz_correlacion.columns)
 plt.show()
 
-# grafico matriz de correlacion usanso la libreria seaborn
+# grafico matriz de correlacion con todas las variables usanso la libreria seaborn
 df2 = datos.copy()
 df2 = df2.drop(columns='Unnamed: 0', axis=1)
 df2['genero']=pd.factorize(df2.genero)[0]
