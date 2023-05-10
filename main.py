@@ -6,7 +6,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # leer el dataset con la libreria pandas
-datos = pd.read_csv('C:/Users/angel/OneDrive/Documentos/trabajo.csv', sep=',')
+try:
+    datos = pd.read_csv('C:/Users/angel/OneDrive/Documentos/trabajo.csv', sep=',')
+except FileNotFoundError:
+    print("El fichero no existe")
+except Exception as e:
+    print("Se ha producido un error al leer el fichero: ", type(e).__name__)
 
 # Mostrar las primeras y últimas filas del dataset.
 print(datos.head())
@@ -81,8 +86,8 @@ plt.boxplot([
     df3[df3["educacion_padres"] == "bachelor's degree"]["puntuacion_total"],
     df3[df3["educacion_padres"] == "master's degree"]["puntuacion_total"]],
     labels=["secundaria", "algunos estudios universitarios", "técnico superior", "licenciado", "posgrado"],
-    boxprops=dict(color='red'),
-    medianprops=dict(color='red'), vert=True, patch_artist=True)
+    boxprops=dict(color='black'),
+    medianprops=dict(color='black'), vert=True, patch_artist=True)
 
 for i in range(5):
     median = round(df3[df3["formacion_padres"] == i+1]["puntuacion_total"].median(), 2)
@@ -102,17 +107,6 @@ group_e = datos.loc[datos['Grupo_etnico_estudiante']=='group E'].count()[0]
 
 plt.pie([group_a, group_b, group_c, group_d, group_e], labels = ['group_A','group_B','group_C','group_D','group_E'],autopct='%.2f%%')
 plt.title('Gráfico circular de grupos étnicos')
-plt.show()
-
-# grafico matriz de correlacion de las variables cuantitativas sin usar la libreria seaborn
-matriz_correlacion = datos.corr()
- 
-plt.matshow(matriz_correlacion, cmap='coolwarm')
-for i in range(matriz_correlacion.shape[0]):
-    for j in range(matriz_correlacion.shape[1]):
-        plt.annotate(f'{matriz_correlacion.iloc[i, j]:.2f}', xy=(j, i), horizontalalignment='center', verticalalignment='center')
-plt.xticks(range(len(matriz_correlacion.columns)), matriz_correlacion.columns, rotation=90)
-plt.yticks(range(len(matriz_correlacion.columns)), matriz_correlacion.columns)
 plt.show()
 
 # grafico matriz de correlacion con todas las variables usanso la libreria seaborn
@@ -163,14 +157,12 @@ print(df4.head())
 
 # 5. Manejo de excepciones:
 # Utilizar bloques try-except para manejar errores o excepciones al leer o procesar el dataset.
-try:
-    df5 = pd.read_csv("StudentsPerformance.csv")
-except FileNotFoundError:
-    print("El fichero no existe")
-except Exception as e:
-    print("Se ha producido un error al leer el fichero: ", type(e).__name__)
 
 # Crear excepciones personalizadas para manejar situaciones específicas del análisis
 class NonNumericValueError(Exception):
-    def __init__(self, message):
+    def __init__(self, message="la variable no es numerica"):
+        self.message = message
+
+class NegativePriceError(Exception):
+    def __init__(self, message="no puede haber notas negativas"):
         self.message = message
