@@ -122,12 +122,15 @@ df2['frequencia_deporte']=pd.factorize(df2.frequencia_deporte)[0]
 df2['esprimerniño']=pd.factorize(df2.esprimerniño)[0]
 df2['medio_transporte']=pd.factorize(df2.medio_transporte)[0]
 
-corr_df = df2.corr()
-print("la correlacion de las variables cualitativas es:")
-print(corr_df, "\n")
-plt.figure(figsize=(8, 6))
-sns.heatmap(corr_df, annot=True)
-plt.show()
+try:
+    corr_df = datos.corr()
+    print("la correlacion de las variables cualitativas es:")
+    print(corr_df, "\n")
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(corr_df, annot=True)
+    plt.show()
+except:
+    NonNumericValueError()
 
 # 4. Manipulación de datos usando condicionales y bucles:
 # filtrar dataset por numero de hermanos mayor a 6 y nivel de estudios de los padres bachelor's degree
