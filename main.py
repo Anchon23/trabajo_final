@@ -55,13 +55,16 @@ def calcular_mediana(columna):
 def calcular_desv_est(columna):
     return np.std(columna)
 
-columnas_numericas = datos.select_dtypes(include=[np.number]).columns.tolist()
+try:
+    columnas_numericas = datos.select_dtypes(include=[np.number]).columns.tolist()
 
-for col in columnas_numericas:
-    print(f"Estadísticas para la columna '{col}':")
-    print(f"Media: {calcular_media(datos[col]):.2f}")
-    print(f"Mediana: {calcular_mediana(datos[col]):.2f}")
-    print(f"Desviación estándar: {calcular_desv_est(datos[col]):.2f}")
+    for col in columnas_numericas:
+        print(f"Estadísticas para la columna '{col}':")
+        print(f"Media: {calcular_media(datos[col]):.2f}")
+        print(f"Mediana: {calcular_mediana(datos[col]):.2f}")
+        print(f"Desviación estándar: {calcular_desv_est(datos[col]):.2f}")
+except Exception as e:
+    print("Se ha producido un error al calcular las estadísticas, es posible la las variable no sean numericas: ")
 
 # Crear gráficos para visualizar la distribución de los datos, como histogramas y diagramas de caja.
 # grafico de barras de la puntuacion de matematicas, lectura y escritura
@@ -110,17 +113,17 @@ plt.title('Gráfico circular de grupos étnicos')
 plt.show()
 
 # grafico matriz de correlacion con todas las variables usanso la libreria seaborn
-df2 = datos.copy()
-df2 = df2.drop(columns='Unnamed: 0', axis=1)
-df2['genero']=pd.factorize(df2.genero)[0]
-df2['Grupo_etnico_estudiante']=pd.factorize(df2.Grupo_etnico_estudiante)[0]
-df2['educacion_padres']=pd.factorize(df2.educacion_padres)[0]
-df2['tipo_almuerzo']=pd.factorize(df2.tipo_almuerzo)[0]
-df2['curso_preparacion']=pd.factorize(df2.curso_preparacion)[0]
-df2['estado_civil_padres']=pd.factorize(df2.estado_civil_padres)[0]
-df2['frequencia_deporte']=pd.factorize(df2.frequencia_deporte)[0]
-df2['esprimerniño']=pd.factorize(df2.esprimerniño)[0]
-df2['medio_transporte']=pd.factorize(df2.medio_transporte)[0]
+# df2 = datos.copy()
+# df2 = df2.drop(columns='Unnamed: 0', axis=1)
+# df2['genero']=pd.factorize(df2.genero)[0]
+# df2['Grupo_etnico_estudiante']=pd.factorize(df2.Grupo_etnico_estudiante)[0]
+# df2['educacion_padres']=pd.factorize(df2.educacion_padres)[0]
+# df2['tipo_almuerzo']=pd.factorize(df2.tipo_almuerzo)[0]
+# df2['curso_preparacion']=pd.factorize(df2.curso_preparacion)[0]
+# df2['estado_civil_padres']=pd.factorize(df2.estado_civil_padres)[0]
+# df2['frequencia_deporte']=pd.factorize(df2.frequencia_deporte)[0]
+# df2['esprimerniño']=pd.factorize(df2.esprimerniño)[0]
+# df2['medio_transporte']=pd.factorize(df2.medio_transporte)[0]
 
 corr_df = datos.corr()
 print("la correlacion de las variables cualitativas es:")
