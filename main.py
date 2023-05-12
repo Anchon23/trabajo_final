@@ -4,6 +4,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import scipy
+import math
+from collections import Counter
 
 # leer el dataset con la libreria pandas
 # creamos un try para que si no encuentra el fichero nos muestre un mensaje de error
@@ -43,7 +46,7 @@ except Exception as e:
 datos.rename(columns={'Unnamed': 'id', 'Gender': 'genero', 'EthnicGroup': 'Grupo_etnico_estudiante', 'ParentEduc': 'educacion_padres', 
                       'LunchType': 'tipo_almuerzo', 'TestPrep': 'curso_preparacion', 'ParentMaritalStatus': 'estado_civil_padres', 
                       'PracticeSport': 'frequencia_deporte', 'IsFirstChild': 'esprimerniño', 'NrSiblings':'numeros_hermanos', 
-                      'TransportMeans': 'medio_transporte','WklyStudyHours': 'horas.semanales_autoaprendizaje', 'MathScore': 'puntuacion_mates',
+                      'TransportMeans': 'medio_transporte','WklyStudyHours': 'horas_semanales_autoaprendizaje', 'MathScore': 'puntuacion_mates',
                       'ReadingScore': 'puntuacion_lectura', 'WritingScore': 'puntuacion_escrita'}, inplace=True)
 
 # 3. Análisis exploratorio de datos
@@ -134,12 +137,65 @@ plt.title('Gráfico circular de grupos étnicos')
 plt.show()
 
 # matriz de correlacion utilizando las variables numericas
+# eliminar una columna de las variables cuantitativas
+datos.drop(['Unnamed: 0'], axis=1, inplace=True)
 corr_df = datos.corr()
-print("la correlacion de las variables cualitativas es:")
+print("la correlacion de las variables cuantitativas es:")
 print(corr_df, "\n")
 plt.figure(figsize=(8, 6))
 sns.heatmap(corr_df, annot=True)
 plt.show()
+
+# decoficar las variables cualitativas
+df5 = datos.copy()
+df5.replace({"genero": {0:"female", 1:"male"},},inplace=True)
+sns.boxplot(data=df5, x="genero", y="puntuacion_mates")
+plt.show()
+df5.replace({"Grupo_etnico_estudiante": {0:"group A", 1:"group B", 2:"group C", 3:"group D", 4:"group E"},},inplace=True)
+df5.replace({"educacion_padres": {0:"some high school", 1:"high school", 2:"some college", 3:"associate's degree", 4:"bachelor's degree", 5:"master's degree"},},inplace=True)
+df5.replace({"tipo_almuerzo": {0:"free/reduced", 1:"standard"},},inplace=True)
+df5.replace({"curso_preparacion": {0:"none", 1:"completed"},},inplace=True)
+df5.replace({"estado_civil_padres":{0:"married", 1:"divorced", 2:"single"},},inplace=True)
+df5.replace({"frequencia_deporte":{0:"never", 1:"sometimes", 2:"regularly"},},inplace=True)
+df5.replace({"esprimerniño":{0:"no", 1:"yes"},},inplace=True)
+df5.replace({"medio_transporte":{0:"school_bus", 1:"private"},},inplace=True)
+df5.replace({"horas_semanales_autoaprendizaje":{0:"<5", 1:"05-oct", 2:">10"},},inplace=True)
+
+def theil_u(x,y):
+    s_xy = conditional_entropy(x,y)
+    x_counter = Counter(x)
+    total_occurrences = sum(x_counter.values())
+    p_x = list(map(lambda n: n/total_occurrences, x_counter.values()))
+    s_x = scipy.stats.entropy(p_x)
+    if s_x == 0:
+        return 1
+    else:
+        return (s_x - s_xy) / s_x
+    
+def conditional_entropy(x,y):
+    y_counter = Counter(y)
+    xy_counter = Counter(list(zip(x,y)))
+    total_occurrences = sum(y_counter.values())
+    entropy = 0
+    for xy in xy_counter.keys():
+        p_xy = xy_counter[xy] / total_occurrences
+        p_y = y_counter[xy[1]] / total_occurrences
+        entropy += p_xy * math.log(p_y/p_xy)
+        return entropy
+
+columns = ['genero', 'Grupo_etnico_estudiante', 'educacion_padres', 'tipo_almuerzo', 'curso_preparacion', 'estado_civil_padres', 
+           'frequencia_deporte', 'esprimerniño', 'medio_transporte', 'horas_semanales_autoaprendizaje']
+theilu = pd.DataFrame(index=['medio_transporte'],columns=columns, dtype=float)
+
+for j in range(0,len(columns)):
+    u = theil_u(datos['genero'].tolist(),datos[columns[j]].tolist())
+    theilu.loc[:,columns[j]] = u
+theilu.fillna(value=np.nan,inplace=True)
+plt.figure(figsize=(20,1))
+sns.heatmap(theilu,xticklabels=columns,annot=True,fmt='.2f')
+plt.show()
+
+
 
 # 4. Manipulación de datos usando condicionales y bucles:
 # filtrar dataset por numero de hermanos mayor a 6 y nivel de estudios de los padres bachelor's degree
