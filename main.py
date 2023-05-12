@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # leer el dataset con la libreria pandas
+# creamos un try para que si no encuentra el fichero nos muestre un mensaje de error
 try:
     datos = pd.read_csv('C:/Users/angel/OneDrive/Documentos/trabajo.csv', sep=',')
 except FileNotFoundError:
@@ -24,9 +25,8 @@ print("Número de filas:", num_filas)
 print("Número de columnas:", num_columnas)
 
 # 2. Limpieza y preprocesamiento de datos:
-# qutar valores NaN usando una función personalizada que use la moda/media para remplazarlos. En caso de no haber filas con NaN, 
-# todo dato que esté por encima o por debajo de dos desviaciones típicas de la media tendrá que imputarse por la moda/media.
-# En nuestro caso, si hay valores NaN, se reemplazarán por la moda/media de la columna.
+# qutar valores NaN usando una función personalizada que use la moda/media para remplazarlos.
+# Si tenemos valores NaN, se reemplazarán por la moda/media de la columna.
 
 def fillna_custom(col):
     if col.dtype == 'object':
@@ -34,8 +34,10 @@ def fillna_custom(col):
     else:
         fill_value = col.mean()
     return col.fillna(fill_value)
-
-datos = datos.apply(fillna_custom, axis=0)
+try:
+    datos = datos.apply(fillna_custom, axis=0)
+except Exception as e:
+    print("Se ha producido un error al reemplazar los valores NaN: ", type(e).__name__)
 
 # Renombrar las columnas para facilitar su manipulación. (Las traducimos de ingles a español)
 datos.rename(columns={'Unnamed': 'id', 'Gender': 'genero', 'EthnicGroup': 'Grupo_etnico_estudiante', 'ParentEduc': 'educacion_padres', 
@@ -55,6 +57,8 @@ def calcular_mediana(columna):
 def calcular_desv_est(columna):
     return np.std(columna)
 
+# creamos un bucle para calcular las estadisticas de las columnas numericas
+# si las variables no son numericas nos mostrara un mensaje de error
 try:
     columnas_numericas = datos.select_dtypes(include=[np.number]).columns.tolist()
 
@@ -64,10 +68,9 @@ try:
         print(f"Mediana: {calcular_mediana(datos[col]):.2f}")
         print(f"Desviación estándar: {calcular_desv_est(datos[col]):.2f}")
 except Exception as e:
-    print("Se ha producido un error al calcular las estadísticas, es posible la las variable no sean numericas: ")
+    print("Se ha producido un error al calcular las estadísticas, es posible las variable no sean numericas: ", type(e).__name__)
 
-# Crear gráficos para visualizar la distribución de los datos, como histogramas y diagramas de caja.
-# grafico de barras de la puntuacion de matematicas, lectura y escritura
+# grafico de barras de la puntuacion de matematicas, lectura y escritura por genero
 pv1=pd.pivot_table(datos,index='genero',values=['puntuacion_mates','puntuacion_lectura','puntuacion_escrita'])
 plt.style.use('ggplot')
 p1=pv1.plot(kind='barh',y=['puntuacion_mates','puntuacion_lectura','puntuacion_escrita'],edgecolor='black',linewidth=2,figsize=(12,8),title='Hombres vs Mujeres')
@@ -77,11 +80,19 @@ p1.bar_label(p1.containers[2], label_type='edge',padding=0.5,bbox={"boxstyle": "
 plt.show()
 
 # boxplot de puntuacion total en funcion del nivel de estudios de los padres
+# creamos un daataframe a partir del dataset original
 df3 = datos.copy()
-df3['puntuacion_total'] = (df3['puntuacion_mates'] + df3['puntuacion_lectura'] + df3['puntuacion_escrita']) / 3
 
+# caculamos la puntuacion total haciendo la media de las puntuaciones de matematicas, lectura y escritura
+try:
+    df3['puntuacion_total'] = (df3['puntuacion_mates'] + df3['puntuacion_lectura'] + df3['puntuacion_escrita']) / 3
+except ValueError as e:
+    print("Se ha producido un error al calcular la puntuación total: ", type(e).__name__)
+
+# creamos una nueva columna con el nivel de estudios de los padres pasado a numerico
 df3["formacion_padres"] = df3["educacion_padres"].map({"high school": 1, "some college": 2, "associate's degree": 3, "bachelor's degree": 4, "master's degree": 5})
 
+# creamos el boxplot
 plt.boxplot([
     df3[df3["educacion_padres"] == "high school"]["puntuacion_total"],
     df3[df3["educacion_padres"] == "some college"]["puntuacion_total"],
@@ -92,39 +103,37 @@ plt.boxplot([
     boxprops=dict(color='black'),
     medianprops=dict(color='black'), vert=True, patch_artist=True)
 
-for i in range(5):
-    median = round(df3[df3["formacion_padres"] == i+1]["puntuacion_total"].median(), 2)
-    plt.text(i+1, median+2, str(median), color='black', ha='center')
-    
+# añadimos la media de cada grupo
+try:
+    for i in range(5):
+        median = round(df3[df3["formacion_padres"] == i+1]["puntuacion_total"].median(), 2)
+        plt.text(i+1, median+2, str(median), color='black', ha='center')
+except Exception as e:
+    print("Se ha producido un error al añadir las medias: ", type(e).__name__)
+
+# añadimos el titulo y las etiquetas
 plt.title("Boxplot de puntuacion total en funcion del nivel de estudios de los padres")
 plt.xlabel("nivel de estudios de los padres")
 plt.ylabel("puntuacion total")
 plt.show()
 
-# Gráfico circular de grupos étnicos del estudiante
-group_a = datos.loc[datos['Grupo_etnico_estudiante']=='group A'].count()[0]
-group_b = datos.loc[datos['Grupo_etnico_estudiante']=='group B'].count()[0]
-group_c = datos.loc[datos['Grupo_etnico_estudiante']=='group C'].count()[0]
-group_d = datos.loc[datos['Grupo_etnico_estudiante']=='group D'].count()[0]
-group_e = datos.loc[datos['Grupo_etnico_estudiante']=='group E'].count()[0]
+# Gráfico circular de grupos étnicos del estudiantes
+# calculamos el numero de estudiantes de cada grupo
+try:
+    group_a = datos.loc[datos['Grupo_etnico_estudiante']=='group A'].count()[0]
+    group_b = datos.loc[datos['Grupo_etnico_estudiante']=='group B'].count()[0]
+    group_c = datos.loc[datos['Grupo_etnico_estudiante']=='group C'].count()[0]
+    group_d = datos.loc[datos['Grupo_etnico_estudiante']=='group D'].count()[0]
+    group_e = datos.loc[datos['Grupo_etnico_estudiante']=='group E'].count()[0]
+except Exception as e:
+    print("Se ha producido un error al calcular el número de estudiantes de cada grupo: ", type(e).__name__)
 
+# grafico circular
 plt.pie([group_a, group_b, group_c, group_d, group_e], labels = ['group_A','group_B','group_C','group_D','group_E'],autopct='%.2f%%')
 plt.title('Gráfico circular de grupos étnicos')
 plt.show()
 
-# grafico matriz de correlacion con todas las variables usanso la libreria seaborn
-# df2 = datos.copy()
-# df2 = df2.drop(columns='Unnamed: 0', axis=1)
-# df2['genero']=pd.factorize(df2.genero)[0]
-# df2['Grupo_etnico_estudiante']=pd.factorize(df2.Grupo_etnico_estudiante)[0]
-# df2['educacion_padres']=pd.factorize(df2.educacion_padres)[0]
-# df2['tipo_almuerzo']=pd.factorize(df2.tipo_almuerzo)[0]
-# df2['curso_preparacion']=pd.factorize(df2.curso_preparacion)[0]
-# df2['estado_civil_padres']=pd.factorize(df2.estado_civil_padres)[0]
-# df2['frequencia_deporte']=pd.factorize(df2.frequencia_deporte)[0]
-# df2['esprimerniño']=pd.factorize(df2.esprimerniño)[0]
-# df2['medio_transporte']=pd.factorize(df2.medio_transporte)[0]
-
+# matriz de correlacion utilizando las variables numericas
 corr_df = datos.corr()
 print("la correlacion de las variables cualitativas es:")
 print(corr_df, "\n")
@@ -154,18 +163,3 @@ print("puntuacion superior a 90 en escritura: ", round((datos['puntuacion_escrit
 df4 = datos.copy()
 df4['comprensión.lectora.y.expresión.escrita'] = (df4['puntuacion_lectura'] + df4['puntuacion_escrita']) / 2
 print(df4.head())
-
-# Utilizar bucles para iterar sobre filas o columnas y realizar cálculos.
-# Hecho anteriormente
-
-# 5. Manejo de excepciones:
-# Utilizar bloques try-except para manejar errores o excepciones al leer o procesar el dataset.
-
-# Crear excepciones personalizadas para manejar situaciones específicas del análisis
-class NonNumericValueError(Exception):
-    def __init__(self, message="la variable no es numerica"):
-        self.message = message
-
-class NegativePriceError(Exception):
-    def __init__(self, message="no puede haber notas negativas"):
-        self.message = message
