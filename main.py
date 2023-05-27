@@ -4,9 +4,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import scipy
-import math
-from collections import Counter
 
 # leer el dataset con la libreria pandas
 # creamos un try para que si no encuentra el fichero nos muestre un mensaje de error
@@ -73,103 +70,103 @@ try:
 except Exception as e:
     print("Se ha producido un error al calcular las estadísticas, es posible las variable no sean numericas: ", type(e).__name__)
 
+# 4. Visualización de datos
+# Cuatro gráficos circulares que muestran el porcentaje de personas según diferentes variables.
+fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
+
+variables = ['frequencia_deporte', 'estado_civil_padres', 'educacion_padres', 'Grupo_etnico_estudiante']
+etiquetas = ['Frecuencia de deporte', 'Estado civil de los padres', 'Educación de los padres', 'Grupo étnico del estudiante']
+
+for i, ax in enumerate(axes.flat):
+    variable = variables[i]
+    etiqueta = etiquetas[i]
+    data = datos[variable].value_counts()
+    porcentajes = data / data.sum() * 100
+    
+    ax.pie(porcentajes, labels=data.index, autopct='%1.1f%%', startangle=90)
+
+    ax.set_title(etiqueta)
+
+plt.suptitle('Porcentaje de personas según diferentes variables', fontsize=14)
+plt.tight_layout()
+plt.show()
+
 # grafico de barras de la puntuacion de matematicas, lectura y escritura por genero
-# pv1=pd.pivot_table(datos,index='genero',values=['puntuacion_mates','puntuacion_lectura','puntuacion_escrita'])
-# plt.style.use('ggplot')
-# p1=pv1.plot(kind='barh',y=['puntuacion_mates','puntuacion_lectura','puntuacion_escrita'],edgecolor='black',linewidth=2,figsize=(12,8),title='Hombres vs Mujeres')
-# p1.bar_label(p1.containers[0], label_type='edge',padding=0.5,bbox={"boxstyle": "round", "pad": 0.6, "facecolor": "white", "edgecolor": "#1c1c1c", "linewidth" : 2.5, "alpha": 1})
-# p1.bar_label(p1.containers[1], label_type='edge',padding=0.5,bbox={"boxstyle": "round", "pad": 0.6, "facecolor": "white", "edgecolor": "#1c1c1c", "linewidth" : 2.5, "alpha": 1})
-# p1.bar_label(p1.containers[2], label_type='edge',padding=0.5,bbox={"boxstyle": "round", "pad": 0.6, "facecolor": "white", "edgecolor": "#1c1c1c", "linewidth" : 2.5, "alpha": 1})
-# plt.show()
-
-# # boxplot de puntuacion total en funcion del nivel de estudios de los padres
-# # creamos un daataframe a partir del dataset original
-# df3 = datos.copy()
-
-# # caculamos la puntuacion total haciendo la media de las puntuaciones de matematicas, lectura y escritura
-# try:
-#     df3['puntuacion_total'] = (df3['puntuacion_mates'] + df3['puntuacion_lectura'] + df3['puntuacion_escrita']) / 3
-# except ValueError as e:
-#     print("Se ha producido un error al calcular la puntuación total: ", type(e).__name__)
-
-# # creamos una nueva columna con el nivel de estudios de los padres pasado a numerico
-# df3["formacion_padres"] = df3["educacion_padres"].map({"high school": 1, "some college": 2, "associate's degree": 3, "bachelor's degree": 4, "master's degree": 5})
-
-# # creamos el boxplot
-# plt.boxplot([
-#     df3[df3["educacion_padres"] == "high school"]["puntuacion_total"],
-#     df3[df3["educacion_padres"] == "some college"]["puntuacion_total"],
-#     df3[df3["educacion_padres"] == "associate's degree"]["puntuacion_total"],
-#     df3[df3["educacion_padres"] == "bachelor's degree"]["puntuacion_total"],
-#     df3[df3["educacion_padres"] == "master's degree"]["puntuacion_total"]],
-#     labels=["secundaria", "algunos estudios universitarios", "técnico superior", "licenciado", "posgrado"],
-#     boxprops=dict(color='black'),
-#     medianprops=dict(color='black'), vert=True, patch_artist=True)
-
-# # añadimos la media de cada grupo
-# try:
-#     for i in range(5):
-#         median = round(df3[df3["formacion_padres"] == i+1]["puntuacion_total"].median(), 2)
-#         plt.text(i+1, median+2, str(median), color='black', ha='center')
-# except Exception as e:
-#     print("Se ha producido un error al añadir las medias: ", type(e).__name__)
-
-# # añadimos el titulo y las etiquetas
-# plt.title("Boxplot de puntuacion total en funcion del nivel de estudios de los padres")
-# plt.xlabel("nivel de estudios de los padres")
-# plt.ylabel("puntuacion total")
-# plt.show()
-
-# # Gráfico circular de grupos étnicos del estudiantes
-# # calculamos el numero de estudiantes de cada grupo
-# try:
-#     group_a = datos.loc[datos['Grupo_etnico_estudiante']=='group A'].count()[0]
-#     group_b = datos.loc[datos['Grupo_etnico_estudiante']=='group B'].count()[0]
-#     group_c = datos.loc[datos['Grupo_etnico_estudiante']=='group C'].count()[0]
-#     group_d = datos.loc[datos['Grupo_etnico_estudiante']=='group D'].count()[0]
-#     group_e = datos.loc[datos['Grupo_etnico_estudiante']=='group E'].count()[0]
-# except Exception as e:
-#     print("Se ha producido un error al calcular el número de estudiantes de cada grupo: ", type(e).__name__)
-
-# # grafico circular
-# plt.pie([group_a, group_b, group_c, group_d, group_e], labels = ['group_A','group_B','group_C','group_D','group_E'],autopct='%.2f%%')
-# plt.title('Gráfico circular de grupos étnicos')
-# plt.show()
-
-# # matriz de correlacion utilizando las variables numericas
-# # eliminar una columna de las variables cuantitativas
-# datos.drop(['Unnamed: 0'], axis=1, inplace=True)
-# corr_df = datos.corr()
-# print("la correlacion de las variables cuantitativas es:")
-# print(corr_df, "\n")
-# plt.figure(figsize=(8, 6))
-# sns.heatmap(corr_df, annot=True)
-# plt.show()
-
-# # decoficar las variables cualitativas, grafico de caja y bigotes de puntuacion de matematicas en funcion del genero
-df5 = datos.copy()
-# df5.replace({"genero": {0:"female", 1:"male"},},inplace=True)
-# sns.boxplot(data=df5, x="genero", y="puntuacion_mates")
-# plt.show()
-
-fig, ax = plt.subplots(3, sharey = True)
-ax[0].hist(df5["puntuacion_mates"], color="green", bins=20)
-ax[1].hist(df5["puntuacion_lectura"], bins=20)
-ax[2].hist(df5["puntuacion_escrita"], color="orange", bins=20)
+pv1=pd.pivot_table(datos,index='genero',values=['puntuacion_mates','puntuacion_lectura','puntuacion_escrita'])
+plt.style.use('ggplot')
+p1=pv1.plot(kind='barh',y=['puntuacion_mates','puntuacion_lectura','puntuacion_escrita'],edgecolor='black',linewidth=2,figsize=(12,8),title='Hombres vs Mujeres')
+p1.bar_label(p1.containers[0], label_type='edge',padding=0.5,bbox={"boxstyle": "round", "pad": 0.6, "facecolor": "white", "edgecolor": "#1c1c1c", "linewidth" : 2.5, "alpha": 1})
+p1.bar_label(p1.containers[1], label_type='edge',padding=0.5,bbox={"boxstyle": "round", "pad": 0.6, "facecolor": "white", "edgecolor": "#1c1c1c", "linewidth" : 2.5, "alpha": 1})
+p1.bar_label(p1.containers[2], label_type='edge',padding=0.5,bbox={"boxstyle": "round", "pad": 0.6, "facecolor": "white", "edgecolor": "#1c1c1c", "linewidth" : 2.5, "alpha": 1})
 plt.show()
 
-plt.scatter(df5.loc[df5['puntuacion_escrita'] == 'puntuacion_escrita', 'puntuacion_escrita'], df5.loc[df5['puntuacion_lectura'] == 'puntuacion_lectura', 'puntuacion_lectura'], c='red', label='Variable Específica')
-cbar = plt.colorbar()
-cbar.set_label('Variable z')
+# boxplot de puntuacion total en funcion del nivel de estudios de los padres
+df3 = datos.copy()
+
+# caculamos la puntuacion total haciendo la media de las puntuaciones de matematicas, lectura y escritura
+try:
+    df3['puntuacion_total'] = (df3['puntuacion_mates'] + df3['puntuacion_lectura'] + df3['puntuacion_escrita']) / 3
+except ValueError as e:
+    print("Se ha producido un error al calcular la puntuación total: ", type(e).__name__)
+
+# creamos una nueva columna con el nivel de estudios de los padres pasado a numerico
+df3["formacion_padres"] = df3["educacion_padres"].map({"high school": 1, "some college": 2, "associate's degree": 3, "bachelor's degree": 4, "master's degree": 5})
+
+plt.boxplot([
+    df3[df3["educacion_padres"] == "high school"]["puntuacion_total"],
+    df3[df3["educacion_padres"] == "some college"]["puntuacion_total"],
+    df3[df3["educacion_padres"] == "associate's degree"]["puntuacion_total"],
+    df3[df3["educacion_padres"] == "bachelor's degree"]["puntuacion_total"],
+    df3[df3["educacion_padres"] == "master's degree"]["puntuacion_total"]],
+    labels=["secundaria", "algunos estudios universitarios", "técnico superior", "licenciado", "posgrado"],
+    boxprops=dict(color='black'),
+    medianprops=dict(color='black'), vert=True, patch_artist=True)
+
+# añadimos la media de cada grupo
+try:
+    for i in range(5):
+        median = round(df3[df3["formacion_padres"] == i+1]["puntuacion_total"].median(), 2)
+        plt.text(i+1, median+2, str(median), color='black', ha='center')
+except Exception as e:
+    print("Se ha producido un error al añadir las medias: ", type(e).__name__)
+
+plt.title("Boxplot de puntuacion total en funcion del nivel de estudios de los padres")
+plt.xlabel("nivel de estudios de los padres")
+plt.ylabel("puntuacion total")
 plt.show()
 
+# Gráfico de barras de la puntuación media de cada asignatura en función de la frecuencia de deporte
+fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
 
-# fig, ax = plt.subplots(2, 2, sharey = True)
-# ax[0, 0].hist(df5["puntuacion_mates"], temperaturas['Madrid'])
-# ax[0, 1].hist(dias, temperaturas['Barcelona'], color = 'tab:orange')
-# ax[1, 0].bar(dias, temperaturas['Madrid'])
-# ax[1, 1].bar(dias, temperaturas['Barcelona'], color = 'tab:orange')
-# plt.show()
+puntuaciones = ['puntuacion_lectura', 'puntuacion_mates', 'puntuacion_escrita']
+frecuencias = ['regularly', 'sometimes', 'never']
+colores = ['red', 'green', 'blue']
+
+for i, ax in enumerate(axes):
+    data = datos[datos['frequencia_deporte'] == frecuencias[i]]
+    promedios = data[puntuaciones].mean()
+    promedios.plot(kind='bar', ax=ax, color=colores[i])
+
+    ax.set_xlabel('Frecuencia de deporte: ' + frecuencias[i])
+    ax.set_ylabel('Puntuación promedio')
+    ax.set_xticklabels(puntuaciones, rotation=0)
+    
+fig.suptitle('Puntuaciones en función de la frecuencia de deporte', fontsize=14)
+
+plt.tight_layout()
+
+plt.show()
+
+# matriz de correlacion utilizando las variables numericas
+# eliminar una columna de las variables cuantitativas
+datos.drop(['Unnamed: 0'], axis=1, inplace=True)
+corr_df = datos.corr()
+print("la correlacion de las variables cuantitativas es:")
+print(corr_df, "\n")
+plt.figure(figsize=(8, 6))
+sns.heatmap(corr_df, annot=True)
+plt.show()
+
 # 4. Manipulación de datos usando condicionales y bucles:
 # filtrar dataset por numero de hermanos mayor a 6 y nivel de estudios de los padres bachelor's degree
 print(datos.loc[(datos['numeros_hermanos'] > 6) & (datos['educacion_padres'] == "bachelor's degree"),["numeros_hermanos","educacion_padres"]])
