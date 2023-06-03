@@ -70,6 +70,7 @@ try:
         print(f"Media: {np.mean(datos[col]):.2f}")
         print(f"Mediana: {np.median(datos[col]):.2f}")
         print(f"Desviación estándar: {np.std(datos[col]):.2f}")
+        varia
 except Exception as e:
     print("Se ha producido un error al calcular las estadísticas, es posible las variable no sean numericas: ", type(e).__name__)
 
@@ -170,7 +171,7 @@ sns.heatmap(corr_df, annot=True)
 plt.show()
 
 
-# Graph II, III, IV: Correlation with MathScore, ReadingScore, WritingScore
+# Correlaciones caso a caso entre las puntuaciones de lectura, mates y escritura
 for score_column in ['puntuacion_mates', 'puntuacion_lectura', 'puntuacion_escrita']:
     # Create a heatmap of the correlations with the target column
     corr = data.corr()
