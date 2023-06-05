@@ -70,7 +70,7 @@ try:
         print(f"Media: {np.mean(datos[col]):.2f}")
         print(f"Mediana: {np.median(datos[col]):.2f}")
         print(f"Desviación estándar: {np.std(datos[col]):.2f}")
-except Exception as e:
+except TypeError as e:
     print("Se ha producido un error al calcular las estadísticas, es posible las variable no sean numericas: ", type(e).__name__)
 
 # 4. Visualización de datos
